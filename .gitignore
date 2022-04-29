@@ -1,0 +1,6 @@
+.DS_Store
+*.swp
+/tenv
+/tinst
+/qjar
+/qjar.1

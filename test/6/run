@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+qjar -r'\n%%\n' 'mail { print name ":", mail }' data >progout
+diff out progout

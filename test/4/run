@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+qjar -k'\t' 'mail { print name ":", mail }' data 2>progerr && exit 1
+diff err progerr

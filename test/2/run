@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -e
+qjar -k'["]+' '{ print name ":", cell }' data >progout
+diff out progout

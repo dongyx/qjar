@@ -1,0 +1,172 @@
+.ta 8
+
+.TH qjar 1
+
+.SH NAME
+
+qjar \- query record\-jar files using awk with named field variables
+
+.SH SYNOPSIS
+
+\fBqjar\fR [\fIoptions\fR] \fIcmd\fR \fIfile\fR ...
+
+\fBqjar\fR [\fIoptions\fR] \fB-f\fR \fIcmdfile\fR \fIfile\fR ...
+
+.SH DESCRIPTION
+
+\fBqjar\fR reads the awk commands \fIcmd\fR,
+or from the \fIcmdfile\fR file if the \fB\-f\fR option is set.
+And injects statements generating named variables for fields.
+The synthesized awk program is executed
+on the given record-jar(see the \fITHE RECORD-JAR FORMAT\fR section)
+files specified by the \fIfile\fR arguments.
+
+The following command:
+
+.RS
+.nf
+qjar 'pos == "programmer" { print name, mail }' example.txt
+.fi
+.RE
+
+, where \fBexample.txt\fR contains:
+
+.RS
+.nf
+name	Alice Smith
+mail	alice@example.com
+pos	programmer
+
+name	Bob Goodman
+mail	bob@example.com
+pos	HR
+phone	123-457890
+.fi
+.RE
+
+, would print:
+
+.RS
+.nf
+Alice Smith alice@example.com
+.fi
+.RE
+
+\fBqjar\fR synthesizes the awk program,
+setting the \fBFS\fR variable to \fB\\n\fR,
+and sets the \fBRS\fR variable to the empty string
+which represents one or more blank lines,
+or sets the \fBRS\fR variable to the one specified
+by the \fB\-r\fR option if it's provided.
+The fowlling command prints the original lines of
+the first two fields of records which have a non-null \fBphone\fR field.
+
+.RS
+.nf
+qjar 'phone {
+	print $1
+	print $2
+}' example.txt
+.fi
+.RE
+
+Outputs:
+
+.RS
+.nf
+name    Bob Goodman
+mail    bob@example.com
+.fi
+.RE
+
+Field keys must be legal awk identifiers.
+If a key is omitted in a record but occurs in another record.
+The value of the named variable for this key in the record 
+would be the empty string.
+
+If the \fB\-f\fR option is set,
+the awk variable \fBARGV[0]\fR will be set to \fIcmdfile\fR.
+Otherwise, the value of \fBARGV[0]\fR of the synthesized awk 
+program inherits from \fBqjar\fR,
+which is the first word typed in the command line
+if \fBqjar\fR is started by the shell,
+normally \fBqjar\fR.
+
+.SH OPTIONS
+
+.TP
+\fB\-i \fIawk\fR
+set which awk interpreter qjar uses
+, default: \fBawk\fR
+
+.TP
+\fB\-k \fIks\fR
+the awk regular expression sets the separator between key and value;
+it can be accessed in the awk command as the \fBKS\fR variable;
+default: \fB[ \\t]+\fR
+
+.TP
+\fB\-r \fIrs\fR
+set the separator between records;
+\fIrs\fR will be passed to awk as the \fBRS\fR variable
+and respect the same rule;
+default: empty string, representing blank lines
+
+.TP
+\fB\-h\fR
+print the brief usage and exit
+
+.TP
+\fB\-v\fR
+print the version and exit
+
+.SH THE RECORD-JAR FORMAT
+
+A record-jar file stores \fIrecords\fR.
+Each record contains \fIfields\fR.
+A field is a line representing a \fIkey\fR-\fIvalue\fR pair.
+
+Conventionally, key and value are separated by spaces/tabs,
+or a colon(\fB:\fR).
+Records are separated by blank lines, or a percent sign (\fB%\fR)
+in a line by itself.
+
+The follow example demonstrates a record-jar file:
+
+.RS
+.nf
+name	Alice Smith
+mail	alice@example.com
+pos	programmer
+
+name	Bob Goodman
+mail	bob@example.com
+pos	HR
+phone	123-457890
+.fi
+.RE
+
+, or, with different separators:
+
+.RS
+.nf
+name:	Alice Smith
+mail:	alice@example.com
+pos:	programmer
+%
+name:	Bob Goodman
+mail:	bob@example.com
+pos:	HR
+phone:	123-457890
+.fi
+.RE
+
+Two records can have different key sets.
+Like shown above, Bob has the \fBphone\fR field
+but Alice doesn't.
+And the order of fields is irrelevant.
+
+.SH BUGS
+
+\fBqjar\fR only supports regular \fIfile\fRs.
+Neither \fIfile\fR nor \fIcmdfile\fR can be \fB\-\fR.
