@@ -41,7 +41,7 @@ Documentation
 -------------
 
 The man page *qjar(1)* is shipped with the installation.
-Typing `man qjar` to read.
+Type `man qjar` to read.
 
 Uninstallation
 --------------
