@@ -66,8 +66,6 @@ if [ -z "$cmdfile" ]; then
 	printf '%s\n' "$1" >"$cmdfile"
 	shift
 fi
-[ -f "$cmdfile" ] || fatal \
-	"$cmdfile is not existed or not a regular file"
 [ "$cmdfile" = - ] && fatal "cmdfile name can\'t be -"
 [ $# -eq 0 ] && fatal 'files are required'
 for i in "$@"; do

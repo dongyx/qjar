@@ -13,6 +13,7 @@ qjar: qjar.sh version
 
 qjar.1: qjar.man1 version LICENSE
 	cp qjar.man1 qjar.1
+	>>qjar.1 echo
 	>>qjar.1 echo .SH VERSION
 	>>qjar.1 echo
 	>>qjar.1 echo "qjar `cat version`"
