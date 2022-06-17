@@ -1,0 +1,8 @@
+#!/bin/sh
+
+out2=$(mktemp)
+set -e
+qjar "`cat PHONEBOOK`" data >progout
+echo "`which qjar`" >"$out2"
+cat out >>"$out2"
+diff "$out2" progout

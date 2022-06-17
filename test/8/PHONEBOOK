@@ -1,0 +1,10 @@
+BEGIN {
+	print ARGV[0]
+	print "--------------------"
+}
+name && cell {
+	print name ":", cell
+}
+END {
+	print "--------------------"
+}

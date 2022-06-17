@@ -35,6 +35,11 @@ awkstr() {
 	printf '%s' "$1" | sed 's/\\/\\\\/g;s/"/\\"/g;$! s/$/\\n/g'
 }
 
+fatal() {
+	printf '%s: %s\n' "$0" "$1" >&2
+	exit 1
+}
+
 awk="awk"
 ks='[\t ]+'
 rs=''
@@ -55,29 +60,20 @@ done
 shift $(($OPTIND - 1))
 progname="$cmdfile"
 if [ -z "$cmdfile" ]; then
-	if [ $# -eq 0 ]; then
-		echo qjar: cmd or cmdfile is required
-		help >&2
-		exit 1
-	fi
+	[ $# -eq 0 ] && fatal 'cmd or cmdfile is required'
+	progname="$0"
 	cmdfile="$d/cmdfile"
-	progname="$1"
 	printf '%s\n' "$1" >"$cmdfile"
 	shift
-elif [ "$cmdfile" = - ]; then
-	echo cmdfile name can\'t be - >&2
-	exit 1
 fi
-if [ $# -eq 0 ]; then
-	echo qjar: files are required
-	help >&2
-	exit 1;
-fi
+[ -f "$cmdfile" ] || fatal \
+	"$cmdfile is not existed or not a regular file"
+[ "$cmdfile" = - ] && fatal "cmdfile name can\'t be -"
+[ $# -eq 0 ] && fatal 'files are required'
 for i in "$@"; do
-	if [ "$i" = - ]; then
-		echo file name can\'t be - >&2
-		exit 1
-	fi
+	[ -f "$i" ] || fatal \
+		"$i is not existed or not a regular file"
+	[ "$i" = - ] && fatal "file name can\'t be -"
 done
 
 "$awk" -v RS="$rs" -v KS="$ks" -F '\n' '{
